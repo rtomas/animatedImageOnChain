@@ -1,12 +1,13 @@
 import { Inter } from "next/font/google";
 
 import { useContractRead, readContracts } from "wagmi";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 
 // import abi from public /json
 import gifABI from "../public/abi/AnimatedGif.json";
 
 const inter = Inter({ subsets: ["latin"] });
+const FRAMES = 3;
 
 export default function Home() {
     const [isClient, setIsClient] = useState(false);
@@ -18,11 +19,11 @@ export default function Home() {
         setIsClient(true);
 
         async function fetchData() {
-            /* const squares1 = await getColorsForLayer2(0);
-            const squares2 = await getColorsForLayer2(1); */
-            //setSquares1(squares1);
-            //setSquares2(squares2);
-            const data = await readAllLayersFromContract();
+            const data = [];
+            for (let i = 0; i < FRAMES; i++) {
+                data.push(await readAllLayersFromContract(i));
+            }
+
             console.log(data);
             setLayerColors(data);
         }
@@ -32,10 +33,10 @@ export default function Home() {
 
     useEffect(() => {
         const data = [];
-        if (layerColors[0]?.result !== undefined) data.push(getColorsForLayer(layerColors[0].result));
-        if (layerColors[1]?.result) data.push(getColorsForLayer(layerColors[1].result));
-        if (layerColors[2]?.result) data.push(getColorsForLayer(layerColors[2].result));
-        console.log(data);
+        for (let i = 0; i < FRAMES; i++) {
+            if (layerColors[i]?.result !== undefined) data.push(getColorsForLayer(layerColors[i].result || []));
+        }
+
         setSquares(data);
     }, [layerColors]);
 
@@ -52,47 +53,40 @@ export default function Home() {
         return squares;
     };
 
-    async function readAllLayersFromContract() {
+    async function readAllLayersFromContract(layer: number) {
         const data = await readContracts({
             contracts: [
                 {
-                    address: "0x13FB0eafB42243998933E24b27fD7e4af2D9e107",
+                    address: "0x4226E81E6f94890465052FB750671C3cE52302a7",
                     abi: gifABI.abi as any[],
                     functionName: "getMatrixForLayer",
-                    args: [0],
-                },
-                {
-                    address: "0x13FB0eafB42243998933E24b27fD7e4af2D9e107",
-                    abi: gifABI.abi as any[],
-                    functionName: "getMatrixForLayer",
-                    args: [1],
-                },
-                {
-                    address: "0x13FB0eafB42243998933E24b27fD7e4af2D9e107",
-                    abi: gifABI.abi as any[],
-                    functionName: "getMatrixForLayer",
-                    args: [2],
+                    args: [layer],
                 },
             ],
         });
-        return data;
+        return data[0];
     }
 
     useEffect(() => {
-        const actualLayer = 0;
         const interval = setInterval(() => {
-            setActualLayer((prevActualLayer) => (prevActualLayer == 2 ? (prevActualLayer = 0) : prevActualLayer + 1));
-        }, 2000);
+            setActualLayer((prevActualLayer) =>
+                prevActualLayer == FRAMES - 1 ? (prevActualLayer = 0) : prevActualLayer + 1
+            );
+        }, 600);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [squares]);
+
+    useEffect(() => {
+        console.log(actualLayer);
+    }, [actualLayer]);
 
     return (
         <main className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}>
-            <div className="grid grid-cols-32 gap-0 border-solid-white" style={{ width: "800px", height: "800px" }}>
+            <div className="grid grid-cols-32 gap-0 border-solid-white" style={{ width: "160px", height: "160px" }}>
                 {squares[actualLayer] &&
                     squares[actualLayer].map((square, index) => (
-                        <div key={index} style={{ backgroundColor: square.color, width: "25px", height: "25px" }} />
+                        <div key={index} style={{ backgroundColor: square.color, width: "5px", height: "5px" }} />
                     ))}
             </div>
         </main>
