@@ -7,7 +7,7 @@ import { useState, useEffect, use } from "react";
 import gifABI from "../public/abi/AnimatedGif.json";
 
 const inter = Inter({ subsets: ["latin"] });
-const FRAMES = 3;
+const FRAMES = 4;
 
 export default function Home() {
     const [isClient, setIsClient] = useState(false);
@@ -88,6 +88,31 @@ export default function Home() {
                     squares[actualLayer].map((square, index) => (
                         <div key={index} style={{ backgroundColor: square.color, width: "5px", height: "5px" }} />
                     ))}
+            </div>
+
+            <div className="flex flex-col items-center justify-center">
+                <div>
+                    Layer: {actualLayer + 1} / {layerColors.length + 1}
+                </div>
+                <div>
+                    Polygon mumbai:{" "}
+                    <a
+                        href="https://mumbai.polygonscan.com/address/0x4226E81E6f94890465052FB750671C3cE52302a7"
+                        target="_blank"
+                    >
+                        0x4226E81E6f94890465052FB750671C3cE52302a7
+                    </a>
+                </div>
+                <div>
+                    <a href="https://github.com/rtomas/animatedImageOnChain-SC" target="_blank">
+                        Smart contract Hardhat Github
+                    </a>
+                </div>
+                <div>
+                    <a href="https://github.com/rtomas/animatedImageOnChain-UI" target="_blank">
+                        Next.js + wagmi UI Github
+                    </a>
+                </div>
             </div>
         </main>
     );
