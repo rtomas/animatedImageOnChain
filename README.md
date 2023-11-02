@@ -1,7 +1,5 @@
 # Animated Image On Chain View
 
-This is a project that i made for fun. Hope you like it ! 
-
 An Animated Image save pixel by pixel all on chain. Each pixel can have a RGB color.
 
 View it online: http://animated-on-chain.vercel.app/
