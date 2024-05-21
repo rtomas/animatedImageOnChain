@@ -57,7 +57,7 @@ export default function Home() {
         const data = await readContracts({
             contracts: [
                 {
-                    address: "0x4226E81E6f94890465052FB750671C3cE52302a7",
+                    address: "0x1e2850bc23708D04944B1a35F75ACC920c07b72b",
                     abi: gifABI.abi as any[],
                     functionName: "getMatrixForLayer",
                     args: [layer],
@@ -95,12 +95,12 @@ export default function Home() {
                     Layer: {actualLayer + 1} / {layerColors.length + 1}
                 </div>
                 <div>
-                    Polygon mumbai:{" "}
+                    Polygon Amoy:{" "}
                     <a
-                        href="https://mumbai.polygonscan.com/address/0x4226E81E6f94890465052FB750671C3cE52302a7"
+                        href="https://www.oklink.com/amoy/address/0x1e2850bc23708D04944B1a35F75ACC920c07b72b/contract"
                         target="_blank"
                     >
-                        0x4226E81E6f94890465052FB750671C3cE52302a7
+                        0x1e2850bc23708D04944B1a35F75ACC920c07b72b
                     </a>
                 </div>
                 <div>
