@@ -13,7 +13,7 @@ const publicClient = createPublicClient({
 import gifABI from "../public/abi/AnimatedGif.json";
 
 const inter = Inter({ subsets: ["latin"] });
-const FRAMES = 3;
+const FRAMES = 4;
 
 export default function Home() {
     const [isClient, setIsClient] = useState(false);
