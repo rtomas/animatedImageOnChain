@@ -1,48 +1,59 @@
 import { Inter } from "next/font/google";
 
-import { useContractRead, readContracts } from "wagmi";
+import { createPublicClient, http } from 'viem'
+import { polygonAmoy } from 'viem/chains'
 import { useState, useEffect, use } from "react";
+
+const publicClient = createPublicClient({
+    chain: polygonAmoy,
+    transport: http()
+  })
 
 // import abi from public /json
 import gifABI from "../public/abi/AnimatedGif.json";
 
 const inter = Inter({ subsets: ["latin"] });
-const FRAMES = 4;
+const FRAMES = 1;
 
 export default function Home() {
     const [isClient, setIsClient] = useState(false);
     const [squares, setSquares] = useState<{ color: string }[][]>([]);
-    const [layerColors, setLayerColors] = useState<{ result?: number[]; status: string }[]>([]);
+    const [layerColors, setLayerColors] = useState<[]>([]);
     const [actualLayer, setActualLayer] = useState(0);
 
-    useEffect(() => {
-        setIsClient(true);
-
-        async function fetchData() {
-            const data = [];
-            for (let i = 0; i < FRAMES; i++) {
-                data.push(await readAllLayersFromContract(i));
-            }
-
-            console.log(data);
-            setLayerColors(data);
+    
+    async function fetchData() {
+        const data:any = [];
+        for (let i = 0; i < FRAMES; i++) {
+            console.log("i ",i ); 
+            const layerData = await publicClient.readContract({
+                address: '0x1e2850bc23708D04944B1a35F75ACC920c07b72b',
+                abi: gifABI.abi as any[],
+                functionName: 'getMatrixForLayer',
+                args: [i],
+              })
+            data.push(layerData);
         }
 
-        fetchData();
-    }, []);
+        setLayerColors(data);
+    }
 
     useEffect(() => {
         const data = [];
         for (let i = 0; i < FRAMES; i++) {
-            if (layerColors[i]?.result !== undefined) data.push(getColorsForLayer(layerColors[i].result || []));
+            console.log("layerColors[i] ",layerColors[i]);
+            if (layerColors[i]) data.push(getColorsForLayer(layerColors[i]));
         }
 
         setSquares(data);
     }, [layerColors]);
 
+    useEffect(() => {
+        fetchData()
+    }, []);
+
     const getColorsForLayer = (colors: number[]) => {
         const squares = [];
-
         for (let i = 0; i < colors.length; i += 3) {
             const r = colors[i];
             const g = colors[i + 1];
@@ -53,19 +64,6 @@ export default function Home() {
         return squares;
     };
 
-    async function readAllLayersFromContract(layer: number) {
-        const data = await readContracts({
-            contracts: [
-                {
-                    address: "0x1e2850bc23708D04944B1a35F75ACC920c07b72b",
-                    abi: gifABI.abi as any[],
-                    functionName: "getMatrixForLayer",
-                    args: [layer],
-                },
-            ],
-        });
-        return data[0];
-    }
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -92,7 +90,7 @@ export default function Home() {
 
             <div className="flex flex-col items-center justify-center">
                 <div>
-                    Layer: {actualLayer + 1} / {layerColors.length + 1}
+                    Layer: {actualLayer + 1} / {layerColors.length}
                 </div>
                 <div>
                     Polygon Amoy:{" "}
@@ -110,7 +108,7 @@ export default function Home() {
                 </div>
                 <div>
                     <a href="https://github.com/rtomas/animatedImageOnChain-UI" target="_blank">
-                        Next.js + wagmi UI Github
+                        Next.js + viem UI Github
                     </a>
                 </div>
             </div>
